@@ -23,6 +23,7 @@
         <meta name="format-detection" content="telephone=no" />
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <link rel="stylesheet" type="text/css" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
         <title>Hello World</title>
     </head>
     <body>
@@ -51,7 +52,7 @@
             app.initialize();
             
             var projectList;
-            //var baseUrl = '';
+            var baseUrl = '';
             var baseUrl = 'http://VAND02165.vci.local';
 
 
@@ -86,7 +87,7 @@
 						}					
 						
 						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>'
-						out += '<a href="#" class="closeProject" data-project-id="' + project.ProjectId + '">Back</a>'
+						out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>'
 						out += '</div>';
 						$('body').append(out);
 						$(".closeProject").on("click", function(){
@@ -119,7 +120,7 @@
 						  var tokens = element.EditLink.split("/");
 						  var projectId = tokens[tokens.length - 1];
 						  
-						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + '<a href="#" class="projectLink" data-project-id="' + projectId +'">View</a></li>');
+						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + ' <a href="#" class="projectLink btn" data-project-id="' + projectId +'">View</a></li>');
 						  setStatus("Loading '" + element.Name + "' project...");
 						  getProject(projectId, element.Name);
 						}    
