@@ -35,8 +35,49 @@
         </div>
         <script type="text/javascript" src="cordova-2.7.0.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/json2.js"></script>
         <script type="text/javascript">
             app.initialize();
+            
+            var projectList;
+            
+			$.ajax({
+		        type: 'POST',
+		        data: 'timeoffsetInMinutes=420&email=cpmadmin%40visioncritical.com&password=Password1&remember-me=on',
+		        //url: 'https://vccommunitpanel.sit.vcilabs.com/c/Account/SignIn',
+		        url: 'http://VAND02165.vci.local/c/Account/APISignIn',
+		        success: function(data){
+		            alert('Success!');
+		            
+					$.ajax({
+				        type: 'GET',
+				        //data: 'timeoffsetInMinutes=420&email=justin.callison%40visioncritical.com&password=Password2&remember-me=on',
+				        //url: 'https://vccommunitpanel.sit.vcilabs.com/c/projects/list?count=10',
+				        url: 'http://VAND02165.vci.local/c/projects/list?count=10',
+				        success: function(data2){
+				            alert(data2);
+				            //var projectList = JSON.parse(data2);
+				            alert(data2[0]);
+				            alert(data2[0].Name);
+				            //alert('Got a project list: ' + projectList);
+							//for (var i = 0; i < projectList.length; i++) { 
+							//  var project = projectList[i];
+							//  alert(project.Name);
+							//}		            
+				        },
+				        error: function(){
+				            alert('No luck!');
+				        }
+				    });		    
+		            
+		        },
+		        error: function(){
+		            alert('Failed to login!');
+		        }
+		    });
+		    
+            
         </script>
     </body>
 </html>
