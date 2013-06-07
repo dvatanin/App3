@@ -26,12 +26,22 @@
         <title>Hello World</title>
     </head>
     <body>
-        <div class="app">
+        <div id="splashScreen" class="app">
             <h1>Apache Cordova</h1>
             <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
+                <p id="splashscreenNotifications" class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
             </div>
+        </div>
+        <div id="dashboard">
+        	<div id="recruitmentStats">
+				<ul id="recruitmentStatsList"></ul>				
+        	</div>
+        	<div id="projects">
+				<ul id="projectList"></ul>
+        	</div>
+        	<div id="notifications">
+        	</div>
         </div>
         <script type="text/javascript" src="cordova-2.7.0.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
@@ -41,39 +51,83 @@
             app.initialize();
             
             var projectList;
+            //var baseUrl = '';
+            var baseUrl = 'http://VAND02165.vci.local';
+
+
+		    function setStatus(message)
+		    {
+		    	$('#notifications').text(message);
+		    	$('#splashscreenNotifications').text(message);
+		    }
+            
+            function getProjects() {
+            	setStatus("Getting a list projects...");
+    			$.ajax({
+					type: 'GET',
+					//data: 'timeoffsetInMinutes=420&email=justin.callison%40visioncritical.com&password=Password2&remember-me=on',
+					//url: 'https://vccommunitpanel.sit.vcilabs.com/c/projects/list?count=10',
+					url: baseUrl + '/c/projects/list?count=10',
+					success: function(data2){						
+						var length = data2.length,
+						element = null;
+						for (var i = 0; i < length; i++) {
+						  element = data2[i];
+						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + '</li>');
+						}    	            
+					},
+					error: function(){
+						setStatus("ERROR: Unable to get projects!");
+					}
+				});
+		    }
+		    
+		    function getRecruitmentStats()
+		    {
+		    	setStatus("Getting recruitment stats...");
+    			$.ajax({
+					type: 'GET',
+					//data: 'timeoffsetInMinutes=420&email=justin.callison%40visioncritical.com&password=Password2&remember-me=on',
+					//url: 'https://vccommunitpanel.sit.vcilabs.com/c/projects/list?count=10',
+					url: baseUrl + '/c/statistics/invitations',
+					success: function(data2){						
+						var length = data2.length,
+						element = null;
+						for (var i = 0; i < length; i++) {
+						  element = data2[i];
+						  $('#recruitmentStatsList').append('<li>' + element.label + ' (' + element.count + ')' + '</li>');
+						}            
+					},
+					error: function(){
+						setStatus("ERROR: Unable to get projects!");
+					}
+				});
+		    }
+		    
+	    
+		    function showDashboard() {
+		    	$("#splashScreen").hide();
+		    	$("#dashboard").show();
+		    }
+            
+            $("#dashboard").hide()
+            setStatus("Logging in...");
             
 			$.ajax({
 		        type: 'POST',
 		        data: 'timeoffsetInMinutes=420&email=cpmadmin%40visioncritical.com&password=Password1&remember-me=on',
 		        //url: 'https://vccommunitpanel.sit.vcilabs.com/c/Account/SignIn',
-		        url: 'http://VAND02165.vci.local/c/Account/APISignIn',
+		        url: baseUrl + '/c/Account/APISignIn',
 		        success: function(data){
-		            alert('Success!');
-		            
-					$.ajax({
-				        type: 'GET',
-				        //data: 'timeoffsetInMinutes=420&email=justin.callison%40visioncritical.com&password=Password2&remember-me=on',
-				        //url: 'https://vccommunitpanel.sit.vcilabs.com/c/projects/list?count=10',
-				        url: 'http://VAND02165.vci.local/c/projects/list?count=10',
-				        success: function(data2){
-				            alert(data2);
-				            //var projectList = JSON.parse(data2);
-				            alert(data2[0]);
-				            alert(data2[0].Name);
-				            //alert('Got a project list: ' + projectList);
-							//for (var i = 0; i < projectList.length; i++) { 
-							//  var project = projectList[i];
-							//  alert(project.Name);
-							//}		            
-				        },
-				        error: function(){
-				            alert('No luck!');
-				        }
-				    });		    
-		            
-		        },
+					//alert('Success!');
+					setStatus("Login successfull");
+					getRecruitmentStats();
+					getProjects();
+					showDashboard();
+					setStatus("");
+				},
 		        error: function(){
-		            alert('Failed to login!');
+		            setStatus("ERROR: Unable to login!");
 		        }
 		    });
 		    
