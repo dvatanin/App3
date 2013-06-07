@@ -60,6 +60,49 @@
 		    	$('#notifications').text(message);
 		    	$('#splashscreenNotifications').text(message);
 		    }
+			
+			function getProject(projectId, name)
+			{		    	
+    			$.ajax({
+					type: 'GET',
+					url: baseUrl + '/c/projects/get/' + projectId,
+					success: function(data){						
+						var out;
+						var project = data.Response;
+						
+						out = '<div style="display: none;" id="' + project.ProjectId +'">';
+						out += '<h1>' + name +'</h1>';
+						out += '<p class="projectStatus' + project.ActivityStatusDisplayText + '">' + project.ActivityStatusDisplayText 
+						if(project.ActivityStatusDisplayText != "Open" && project.HasActivityEverBeenLive === true) {
+							out += ' but has been open before';
+						}
+						out +=  '</p>';
+						out += '<p class="projectType">Project type is ' + project.ProjectTypeResourceName
+						if (project.IsSurvey) {
+							out += ' survey</p>';
+						}
+						if (project.IsForum) {
+							out += ' forum</p>';
+						}					
+						
+						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>'
+						out += '<a href="#" class="closeProject" data-project-id="' + project.ProjectId + '">Back</a>'
+						out += '</div>';
+						$('body').append(out);
+						$(".closeProject").on("click", function(){
+							var id = $(this).attr("data-project-id");
+							$('#' + id).hide();
+							$("#dashboard").show();
+						});
+						setStatus("");
+					},
+					error: function(){
+						setStatus("ERROR: Unable to get project data!");
+					}
+				});			
+			
+
+			}
             
             function getProjects() {
             	setStatus("Getting a list projects...");
@@ -73,8 +116,19 @@
 						element = null;
 						for (var i = 0; i < length; i++) {
 						  element = data2[i];
-						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + '</li>');
-						}    	            
+						  var tokens = element.EditLink.split("/");
+						  var projectId = tokens[tokens.length - 1];
+						  
+						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + '<a href="#" class="projectLink" data-project-id="' + projectId +'">View</a></li>');
+						  setStatus("Loading '" + element.Name + "' project...");
+						  getProject(projectId, element.Name);
+						}    
+						setStatus("");	
+						$(".projectLink").on("click", function() {
+							var id = $(this).attr("data-project-id");
+							$("#dashboard").hide();
+							$('#' + id).show();
+						});
 					},
 					error: function(){
 						setStatus("ERROR: Unable to get projects!");
@@ -87,8 +141,6 @@
 		    	setStatus("Getting recruitment stats...");
     			$.ajax({
 					type: 'GET',
-					//data: 'timeoffsetInMinutes=420&email=justin.callison%40visioncritical.com&password=Password2&remember-me=on',
-					//url: 'https://vccommunitpanel.sit.vcilabs.com/c/projects/list?count=10',
 					url: baseUrl + '/c/statistics/invitations',
 					success: function(data2){						
 						var length = data2.length,
@@ -96,7 +148,8 @@
 						for (var i = 0; i < length; i++) {
 						  element = data2[i];
 						  $('#recruitmentStatsList').append('<li>' + element.label + ' (' + element.count + ')' + '</li>');
-						}            
+						}    
+						setStatus("");						
 					},
 					error: function(){
 						setStatus("ERROR: Unable to get projects!");
@@ -110,7 +163,7 @@
 		    	$("#dashboard").show();
 		    }
             
-            $("#dashboard").hide()
+            $("#dashboard").hide();
             setStatus("Logging in...");
             
 			$.ajax({
