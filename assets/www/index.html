@@ -35,7 +35,7 @@
             </div>
         </div>
         <div id="dashboard">
-        	<div id="header">iCM dashboard <img id="refreshButton" src="img/refresh.png"></div>
+        	<div id="header">iCM dashboard <img id="refreshButton" src="img/refresh.png"/></div>
         	<div id="recruitmentStats">
         		<div class="sectionHeader"><img src="img/person.png"> Recruitment Statistics</div>
 				<ul id="recruitmentStatsList"></ul>				
@@ -55,6 +55,9 @@
             app.initialize();
             
             var projectList;
+            
+            var savedRecruitmentStats = null;
+            
             var baseUrl = '';
             var baseUrl = 'http://VAND02165.vci.local';
 
@@ -78,17 +81,17 @@
 					for (var i = 0; i < length; i++) {
 						element = communications[i];
 						out += '<tr><td colspna="4"><b>' + element.Subject + '</b> (' + element.CommunicationTypeLabel + ') <div class="pull-right">' + element.SentCount + ' sent </div></td></tr>';
-						out += '<tr><td colspan="4">Deliverability: ' + element.ClickedCount + ' Clicked, ' + element.HardBounceCount + ' Hard Bounces, ' + element.SoftBounceCount + ' Soft Bounces, ' + element.UnsubscribedCount + ' Unsubscribed, ' + element.SpamCount + ' Marked as delicious spam</td></tr>'
+						out += '<tr><td colspan="4"><div class="deliverabilityStats"><ul><li><b>Deliverability</b></li><li>' + element.ClickedCount + ' Clicked</li><li>' + element.HardBounceCount + ' Hard Bounces</li><li>' + element.SoftBounceCount + ' Soft Bounces</li><li>' + element.UnsubscribedCount + ' Unsubscribed</li><li>' + element.SpamCount + ' Marked as delicious spam</li></ul></div>'
 						if(isSurvey && (element.CommunicationType === "Invitation" || element.CommunicationType === "Reminder")) {
-							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.SurveyStartedCount + ' Started, ' + element.CompletedCount + ' Completed, ' + element.DisqualifiedCount + ' Disqualified, ' + element.OverQuotaCount + ' Over Quota</td></tr>'
+							out += '<div class="participationStats"><ul><li><b>Participation</b></li><li>' + element.InvitedCount + ' Invited</li><li>' + element.SurveyStartedCount + ' Started</li><li>' + element.CompletedCount + ' Completed</li><li>' + element.DisqualifiedCount + ' Disqualified</li><li>' + element.OverQuotaCount + ' Over Quota</li></ul></div>'
 						}
 						if(!isSurvey && (element.CommunicationType === "Invitation" || element.CommunicationType === "Reminder")) {
-							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.JoinedCount + ' Joined, ' + element.VotedAndPostedCount + ' Voted and Posted, ' + element.VotedOrPostedCount + ' Voted or Posted, ' + element.VotedCount + ' Voted ' + element.PostedCount + ' Posted ' + element.LurkedCount + ' Lurked</td></tr>'
+							out += '<div class="participationStats"><ul><li><b>Participation</b></li><li>' + element.InvitedCount + ' Invited</li><li>' + element.JoinedCount + ' Joined</li><li>' + element.VotedAndPostedCount + ' Voted and Posted</li><li>' + element.VotedOrPostedCount + ' Voted or Posted</li><li>' + element.VotedCount + ' Voted</li><li>' + element.PostedCount + ' Posted</li><li>' + element.LurkedCount + ' Lurked</li></ul></div>';
 						}
 						if(isSurvey && element.CommunicationType === "Confirmation") {
-							out += '<tr><td colspan="4">Participation:  ' + element.SentCount + ' Sent, ' + element.JoinedCount + ' Confirmed</td></tr>'							
+							out += '<div class="participationStats"><ul><li><b>Participation</b></li><li>' + element.SentCount + ' Sent</li><li>' + element.JoinedCount + ' Confirmed</li></ul></div>';			
 						}
-						out += '<tr><td colspan="4" class="separator">&nbsp;</td></tr>';
+						out += '</td></tr><tr><td colspan="4" class="separator">&nbsp;</td></tr>';
 					}
 					
 					out += '</tbody>';
@@ -179,19 +182,45 @@
 				});
 		    }
 		    
+		    function findByLabel(stats, label) {
+		    	var length = stats.length;
+		    	for(var i = 0; i < length; i++) {
+		    		if(stats[i].label === label) {
+		    			return stats[i].count; 
+		    		}
+		    	}
+		    	
+		    	return 0;
+		    }
+		    
 		    function getRecruitmentStats()
 		    {
 		    	setStatus("Getting recruitment stats...");
     			$.ajax({
 					type: 'GET',
 					url: baseUrl + '/c/statistics/invitations',
-					success: function(data2){						
-						var length = data2.length,
+					success: function(data2){												
+						var length = data2.length;
 						element = null;
 						for (var i = 0; i < length; i++) {
 						  element = data2[i];
-						  $('#recruitmentStatsList').append('<li>' + element.label + ' (' + element.count + ')' + '</li>');
-						}    
+						  
+						  var listItem;
+						  listItem = '<li>' + element.label + ' (<span class="'
+						  if(savedRecruitmentStats == null) 
+						  {
+						  } else {
+							  var oldCount = findByLabel(savedRecruitmentStats, element.label);
+							  if(element.count > oldCount) {listItem += "increase" } 
+							  if(element.count < oldCount) {listItem += "decrease" }
+							  if(element.count == oldCount) {listItem += "unchanged" }
+						  }
+						  listItem += '">' + element.count + '</span>)' + '</li>';
+						  
+						  $('#recruitmentStatsList').append(listItem);
+						  
+						} 
+						savedRecruitmentStats = data2;   
 						setStatus("");						
 					},
 					error: function(){

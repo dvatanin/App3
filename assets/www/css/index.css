@@ -154,10 +154,34 @@ h1 {
 	font-size: 30px;	
 }
 
+.increase {
+	color: #7f7;
+}
+
+.decrease {
+	color: #f77;
+}
+
 .projectType {
 	font-size: 30px;
 }
 
 .separator {
 	border-bottom: 2px solid #777;
+}
+
+.participationStats {
+	float: left;
+	font-size: 22px;
+	padding-right: 2em;
+}
+
+.participationStats > ul, .deliverabilityStats > ul {
+	list-style-type: none;
+}
+
+.deliverabilityStats {
+	float: left;
+	font-size: 22px;
+	padding-right: 2em;
 }
