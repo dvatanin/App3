@@ -76,8 +76,14 @@
 						element = communications[i];
 						out += '<tr><td>' + element.SentOn + '</td><td>' + element.SentCount + '</td><td>' + element.CommunicationTypeLabel + '</td><td>' + element.Subject + '</td></tr>';
 						out += '<tr><td colspan="4">Deliverability: ' + element.ClickedCount + ' Clicked, ' + element.HardBounceCount + ' Hard Bounces, ' + element.SoftBounceCount + ' Soft Bounces, ' + element.UnsubscribedCount + ' Unsubscribed, ' + element.SpamCount + ' Marked as delicious spam</td></tr>'
-						if(isSurvey && element.CommunicationType === "Invitation") {
+						if(isSurvey && (element.CommunicationType === "Invitation" || element.CommunicationType === "Reminder")) {
 							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.SurveyStartedCount + ' Started, ' + element.CompletedCount + ' Completed, ' + element.DisqualifiedCount + ' Disqualified, ' + element.OverQuotaCount + ' Over Quota</td></tr>'
+						}
+						if(!isSurvey && (element.CommunicationType === "Invitation" || element.CommunicationType === "Reminder")) {
+							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.JoinedCount + ' Joined, ' + element.VotedAndPostedCount + ' Voted and Posted, ' + element.VotedOrPostedCount + ' Voted or Posted, ' + element.VotedCount + ' Voted ' + element.PostedCount + ' Posted ' + element.LurkedCount + ' Lurked</td></tr>'
+						}
+						if(isSurvey && element.CommunicationType === "Confirmation") {
+							out += '<tr><td colspan="4">Participation:  ' + element.SentCount + ' Sent, ' + element.JoinedCount + ' Confirmed</td></tr>'							
 						}
 					}
 					out += '</tbody>';
