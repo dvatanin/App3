@@ -170,6 +170,10 @@ h1 {
 	border-bottom: 2px solid #777;
 }
 
+.projectHistory {
+	font-size: 22px;
+}
+
 .participationStats {
 	float: left;
 	font-size: 22px;

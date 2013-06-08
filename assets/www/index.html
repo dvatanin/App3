@@ -128,11 +128,11 @@
 						out +=  '</div>';
 						out += '<div class="projectInfo">';
 						
-						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>';
+						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ', Updated on: ' + project.ActivityUpdatedOn + '</p>';
 						
 						out += getCommunications(project.CommunicationViewModels, project.IsSurvey);
 						
-						out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>';
+						//out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>';
 						out += '</div></div>';
 						$('body').append(out);
 						$(".closeProject").on("click", function(){
