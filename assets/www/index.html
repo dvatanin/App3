@@ -62,6 +62,30 @@
 		    	$('#splashscreenNotifications').text(message);
 		    }
 			
+			function getCommunications(communications, isSurvey)
+			{
+				var out = "";
+				if(communications.length > 0) {
+					// add colspans
+					out += '<table class="table table-striped">';
+					out += '<thead><tr><th>Sent</th><th>Sent total</th><th>Description</th><th>Subject</th></tr></thead>';
+					out += '<tbody>';
+					var length = communications.length,
+					element = null;
+					for (var i = 0; i < length; i++) {
+						element = communications[i];
+						out += '<tr><td>' + element.SentOn + '</td><td>' + element.SentCount + '</td><td>' + element.CommunicationTypeLabel + '</td><td>' + element.Subject + '</td></tr>';
+						out += '<tr><td colspan="4">Deliverability: ' + element.ClickedCount + ' Clicked, ' + element.HardBounceCount + ' Hard Bounces, ' + element.SoftBounceCount + ' Soft Bounces, ' + element.UnsubscribedCount + ' Unsubscribed, ' + element.SpamCount + ' Marked as delicious spam</td></tr>'
+						if(isSurvey && element.CommunicationType === "Invitation") {
+							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.SurveyStartedCount + ' Started, ' + element.CompletedCount + ' Completed, ' + element.DisqualifiedCount + ' Disqualified, ' + element.OverQuotaCount + ' Over Quota</td></tr>'
+						}
+					}
+					out += '</tbody>';
+					out += '</table>';
+				}
+				return out;
+			}
+			
 			function getProject(projectId, name)
 			{		    	
     			$.ajax({
@@ -86,8 +110,11 @@
 							out += ' forum</p>';
 						}					
 						
-						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>'
-						out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>'
+						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>';
+						
+						out += getCommunications(project.CommunicationViewModels, project.IsSurvey);
+						
+						out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>';
 						out += '</div>';
 						$('body').append(out);
 						$(".closeProject").on("click", function(){
