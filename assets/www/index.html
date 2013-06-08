@@ -35,7 +35,7 @@
             </div>
         </div>
         <div id="dashboard">
-        	<div id="header">iCM dashboard <i class="icon-white icon-refresh"></i></div>
+        	<div id="header">iCM dashboard <img id="refreshButton" src="img/refresh.png"></div>
         	<div id="recruitmentStats">
         		<div class="sectionHeader"><img src="img/person.png"> Recruitment Statistics</div>
 				<ul id="recruitmentStatsList"></ul>				
@@ -70,14 +70,14 @@
 				var out = "";
 				if(communications.length > 0) {
 					// add colspans
-					out += '<table class="table table-striped">';
-					out += '<thead><tr><th>Sent</th><th>Sent total</th><th>Description</th><th>Subject</th></tr></thead>';
+					out += '<table>';
+					//out += '<thead><tr><th>Sent</th><th>Sent total</th><th>Description</th><th>Subject</th></tr></thead>';
 					out += '<tbody>';
 					var length = communications.length,
 					element = null;
 					for (var i = 0; i < length; i++) {
 						element = communications[i];
-						out += '<tr><td>' + element.SentOn + '</td><td>' + element.SentCount + '</td><td>' + element.CommunicationTypeLabel + '</td><td>' + element.Subject + '</td></tr>';
+						out += '<tr><td colspna="4"><b>' + element.Subject + '</b> (' + element.CommunicationTypeLabel + ') <div class="pull-right">' + element.SentCount + ' sent </div></td></tr>';
 						out += '<tr><td colspan="4">Deliverability: ' + element.ClickedCount + ' Clicked, ' + element.HardBounceCount + ' Hard Bounces, ' + element.SoftBounceCount + ' Soft Bounces, ' + element.UnsubscribedCount + ' Unsubscribed, ' + element.SpamCount + ' Marked as delicious spam</td></tr>'
 						if(isSurvey && (element.CommunicationType === "Invitation" || element.CommunicationType === "Reminder")) {
 							out += '<tr><td colspan="4">Participation:  ' + element.InvitedCount + ' Invited, ' + element.SurveyStartedCount + ' Started, ' + element.CompletedCount + ' Completed, ' + element.DisqualifiedCount + ' Disqualified, ' + element.OverQuotaCount + ' Over Quota</td></tr>'
@@ -88,7 +88,9 @@
 						if(isSurvey && element.CommunicationType === "Confirmation") {
 							out += '<tr><td colspan="4">Participation:  ' + element.SentCount + ' Sent, ' + element.JoinedCount + ' Confirmed</td></tr>'							
 						}
+						out += '<tr><td colspan="4" class="separator">&nbsp;</td></tr>';
 					}
+					
 					out += '</tbody>';
 					out += '</table>';
 				}
@@ -104,27 +106,31 @@
 						var out;
 						var project = data.Response;
 						
-						out = '<div style="display: none;" id="' + project.ProjectId +'">';
-						out += '<h1>' + name +'</h1>';
-						out += '<p class="projectStatus' + project.ActivityStatusDisplayText + '">' + project.ActivityStatusDisplayText 
-						if(project.ActivityStatusDisplayText != "Open" && project.HasActivityEverBeenLive === true) {
-							out += ' but has been open before';
-						}
-						out +=  '</p>';
-						out += '<p class="projectType">Project type is ' + project.ProjectTypeResourceName
+						out = '<div style="display: none;" id="' + project.ProjectId +'" class="projectDetails">';
+						out += '<div class="projectHeader"><img data-project-id="' + project.ProjectId + '" class="closeProject" src="img/back.png" />  ' + name;
+						out += '<br/>';
+						out += '<p class="projectType">' + project.ProjectTypeResourceName;
 						if (project.IsSurvey) {
 							out += ' survey</p>';
 						}
 						if (project.IsForum) {
 							out += ' forum</p>';
-						}					
+						}
+						out += '<br/>';							
+						out += '<p class="projectStatus' + project.ActivityStatusDisplayText + '">' + project.ActivityStatusDisplayText 
+						if(project.ActivityStatusDisplayText != "Open" && project.HasActivityEverBeenLive === true) {
+							out += ' but has been open before';
+						}
+						out +=  '</p>';						
+						out +=  '</div>';
+						out += '<div class="projectInfo">';
 						
 						out += '<p class="projectHistory">Created on: ' + project.ProjectCreatedOn + ' Updated on: ' + project.ActivityUpdatedOn + ' Accessed on: ' + project.ProjectAccessedOn + '</p>';
 						
 						out += getCommunications(project.CommunicationViewModels, project.IsSurvey);
 						
 						out += '<a href="#" class="closeProject btn" data-project-id="' + project.ProjectId + '">Back</a>';
-						out += '</div>';
+						out += '</div></div>';
 						$('body').append(out);
 						$(".closeProject").on("click", function(){
 							var id = $(this).attr("data-project-id");
@@ -156,7 +162,7 @@
 						  var tokens = element.EditLink.split("/");
 						  var projectId = tokens[tokens.length - 1];
 						  
-						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + ' <a href="#" class="projectLink btn" data-project-id="' + projectId +'">View</a></li>');
+						  $('#projectList').append('<li>' + element.Name + ' (' + element.ProjectTypeResourceName + ')' + ' <a href="#" class="projectLink pull-right" data-project-id="' + projectId +'"><img src="img/play1disabled.png"></a></li>');
 						  setStatus("Loading '" + element.Name + "' project...");
 						  getProject(projectId, element.Name);
 						}    
@@ -201,6 +207,8 @@
 		    }
             
             $("#dashboard").hide();
+            $("#refreshButton").on("click", function(){ update();});
+            
             setStatus("Logging in...");
             
 			$.ajax({
@@ -209,17 +217,25 @@
 		        //url: 'https://vccommunitpanel.sit.vcilabs.com/c/Account/SignIn',
 		        url: baseUrl + '/c/Account/APISignIn',
 		        success: function(data){
-					//alert('Success!');
+					//alert('Success!');					
 					setStatus("Login successfull");
-					getRecruitmentStats();
-					getProjects();
-					showDashboard();
-					setStatus("");
+					
+					update();
 				},
 		        error: function(){
 		            setStatus("ERROR: Unable to login!");
 		        }
 		    });
+		    
+		    function update() {
+		    		$("#recruitmentStatsList").html("");
+		    		$("#projectList").html("");
+		    		$(".projectDetails").remove();
+					getRecruitmentStats();
+					getProjects();
+					showDashboard();
+					setStatus("");		    
+		    }
 		    
             
         </script>

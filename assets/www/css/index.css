@@ -103,7 +103,7 @@ h1 {
     -webkit-animation:fade 3000ms infinite;
 }
 
-#header {
+#header, .projectHeader {
 	font-size: 1.5em;
 	background-color: black;
 	padding: 1em 0 1em 0;
@@ -113,7 +113,7 @@ h1 {
 	text-align: center;	
 }
 
-#dashboard {
+#dashboard, .projectInfo {
 	padding-top: 0;
 	padding-bottom: 1em;	
 	padding-left: 1em;
@@ -132,5 +132,32 @@ h1 {
 
 .sectionHeader {
 	text-transform:uppercase;
+	border-bottom: 2px solid #777;
+}
+
+.projectLink > img {
+	border: none;
+}
+
+.projectStatusOpen {
+	color: #7f7;
+	font-size: 30px;
+}
+
+.projectStatusClosed {
+	color: #f77;
+	font-size: 30px;	
+}
+
+.projectStatusPending {
+	color: #fff;
+	font-size: 30px;	
+}
+
+.projectType {
+	font-size: 30px;
+}
+
+.separator {
 	border-bottom: 2px solid #777;
 }
